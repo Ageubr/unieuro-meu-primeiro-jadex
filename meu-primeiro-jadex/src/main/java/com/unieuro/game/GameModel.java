@@ -41,16 +41,19 @@ public class GameModel {
         if (gameOver) return;
         Point head = snake.peekFirst();
         Point next = new Point(head.x + direction.dx, head.y + direction.dy);
-        // wrap-around
-        if (next.x < 0) next.x = width - 1;
-        if (next.y < 0) next.y = height - 1;
-        if (next.x >= width) next.x = 0;
-        if (next.y >= height) next.y = 0;
+        
+        // collision with walls - GAME OVER
+        if (next.x < 0 || next.y < 0 || next.x >= width || next.y >= height) {
+            gameOver = true;
+            System.out.println("GameModel: GAME OVER - Cobrinha bateu na parede! Posição: (" + next.x + ", " + next.y + ")");
+            return;
+        }
 
         // collision with self
         for (Point p : snake) {
             if (p.equals(next)) {
                 gameOver = true;
+                System.out.println("GameModel: GAME OVER - Cobrinha bateu no próprio corpo!");
                 return;
             }
         }
