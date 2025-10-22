@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jadex Snake Game</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            background: #2c3e50;
+            color: white;
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        h1 {
+            color: #e74c3c;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+            margin-bottom: 10px;
+        }
+        
+        .info {
+            background: #34495e;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 10px;
+            max-width: 600px;
+            text-align: center;
+        }
+        
+        .game-container {
+            background: #34495e;
+            padding: 20px;
+            border-radius: 15px;
+            margin: 20px 0;
+            box-shadow: 0 0 20px rgba(0,0,0,0.3);
+        }
+        
+        #gameCanvas {
+            border: 3px solid #e74c3c;
+            background: #000;
+            display: block;
+            margin: 10px auto;
+        }
+        
+        .controls {
+            text-align: center;
+            margin: 15px 0;
+        }
+        
+        .score {
+            font-size: 24px;
+            font-weight: bold;
+            color: #f1c40f;
+            text-align: center;
+            margin: 10px 0;
+        }
+        
+        .status {
+            font-size: 18px;
+            text-align: center;
+            margin: 10px 0;
+            min-height: 25px;
+        }
+        
+        .game-over {
+            color: #e74c3c;
+            font-weight: bold;
+            animation: blink 1s infinite;
+        }
+        
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0.3; }
+        }
+        
+        .connected {
+            color: #27ae60;
+        }
+        
+        .disconnected {
+            color: #e74c3c;
+        }
+        
+        button {
+            background: #e74c3c;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            margin: 5px;
+            transition: background 0.3s;
+        }
+        
+        button:hover {
+            background: #c0392b;
+        }
+        
+        button:disabled {
+            background: #7f8c8d;
+            cursor: not-allowed;
+        }
+        
+        .agent-logs {
+            background: #1a252f;
+            border: 1px solid #34495e;
+            border-radius: 5px;
+            padding: 10px;
+            margin: 10px 0;
+            max-height: 150px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            color: #bdc3c7;
+        }
+    </style>
+</head>
+<body>
+    <h1>🐍 Jogo da Cobrinha com Jadex</h1>
+    
+    <div class="info">
+        <p><strong>Sistema Multi-Agente:</strong> SnakeAgent 🐍 | AppleAgent 🍎 | ScoreAgent 📊 | GameManagerAgent 🎮</p>
+        <p><strong>Controles:</strong> Use as setas do teclado ⬆️⬇️⬅️➡️ ou clique nos botões | <strong>R</strong> para reiniciar</p>
+    </div>
+    
+    <div class="game-container">
+        <div class="score" id="score">Score: 0</div>
+        <div class="status" id="status">Conectando aos agentes Jadex...</div>
+        
+        <canvas id="gameCanvas" width="600" height="400"></canvas>
+        
+        <div class="controls">
+            <div>
+                <button onclick="sendMove('up')" id="btnUp">⬆️ Cima</button>
+            </div>
+            <div>
+                <button onclick="sendMove('left')" id="btnLeft">⬅️ Esquerda</button>
+                <button onclick="resetGame()" id="btnReset">🔄 Reiniciar</button>
+                <button onclick="sendMove('right')" id="btnRight">Direita ➡️</button>
+            </div>
+            <div>
+                <button onclick="sendMove('down')" id="btnDown">⬇️ Baixo</button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="info">
+        <h3>Logs dos Agentes (simulado)</h3>
+        <div class="agent-logs" id="agentLogs">
+            <div>🎮 GameManagerAgent: Iniciado com modelo do jogo</div>
+            <div>🐍 SnakeAgent: Agente da cobra ativo</div>
+            <div>🍎 AppleAgent: Monitorando eventos de maçã</div>
+            <div>📊 ScoreAgent: Sistema de pontuação ativo</div>
+            <div>🌐 WebSocket: Conectando...</div>
+        </div>
+    </div>
+
+    <script>
+        let ws;
+        let gameState = null;
+        let canvas = document.getElementById('gameCanvas');
+        let ctx = canvas.getContext('2d');
+        const cellSize = 20;
+        
+        // Conectar WebSocket
+        function connectWebSocket() {
+            const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+            const wsUrl = `${protocol}//${window.location.host}/game-websocket`;
+            
+            ws = new WebSocket(wsUrl);
+            
+            ws.onopen = function() {
+                document.getElementById('status').innerHTML = '<span class="connected">🟢 Conectado aos agentes Jadex</span>';
+                addLog('🌐 WebSocket: Conectado ao GameManagerAgent');
+                requestGameState();
+            };
+            
+            ws.onmessage = function(event) {
+                try {
+                    const data = JSON.parse(event.data);
+                    if (data.type === 'gameState') {
+                        gameState = data;
+                        updateDisplay();
+                    } else if (data.error) {
+                        console.error('WebSocket error:', data.error);
+                        addLog('❌ Erro: ' + data.error);
+                    }
+                } catch (e) {
+                    console.error('Error parsing WebSocket message:', e);
+                }
+            };
+            
+            ws.onclose = function() {
+                document.getElementById('status').innerHTML = '<span class="disconnected">🔴 Desconectado - Tentando reconectar...</span>';
+                addLog('🌐 WebSocket: Conexão perdida, tentando reconectar...');
+                setTimeout(connectWebSocket, 2000);
+            };
+            
+            ws.onerror = function(error) {
+                console.error('WebSocket error:', error);
+                addLog('❌ Erro de conexão WebSocket');
+            };
+        }
+        
+        // Enviar comando de movimento
+        function sendMove(direction) {
+            if (ws && ws.readyState === WebSocket.OPEN) {
+                ws.send(JSON.stringify({
+                    action: 'move',
+                    direction: direction
+                }));
+                addLog(`🐍 SnakeAgent: Movimento ${direction}`);
+            }
+        }
+        
+        // Reiniciar jogo
+        function resetGame() {
+            if (ws && ws.readyState === WebSocket.OPEN) {
+                ws.send(JSON.stringify({
+                    action: 'reset'
+                }));
+                addLog('🔄 GameManagerAgent: Jogo reiniciado');
+            }
+        }
+        
+        // Solicitar estado atual
+        function requestGameState() {
+            if (ws && ws.readyState === WebSocket.OPEN) {
+                ws.send(JSON.stringify({
+                    action: 'getState'
+                }));
+            }
+        }
+        
+        // Atualizar display
+        function updateDisplay() {
+            if (!gameState) return;
+            
+            // Atualizar score
+            document.getElementById('score').textContent = `Score: ${gameState.score}`;
+            
+            // Atualizar status
+            if (gameState.gameOver) {
+                document.getElementById('status').innerHTML = '<span class="game-over">💀 Game Over - Pressione R ou clique em Reiniciar</span>';
+            } else {
+                document.getElementById('status').innerHTML = '<span class="connected">🎮 Jogo em andamento</span>';
+            }
+            
+            // Renderizar jogo
+            renderGame();
+        }
+        
+        // Renderizar o jogo no canvas
+        function renderGame() {
+            if (!gameState) return;
+            
+            // Limpar canvas
+            ctx.fillStyle = '#000';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // Desenhar grid (opcional)
+            ctx.strokeStyle = '#333';
+            ctx.lineWidth = 1;
+            for (let x = 0; x < gameState.width; x++) {
+                for (let y = 0; y < gameState.height; y++) {
+                    ctx.strokeRect(x * cellSize, y * cellSize, cellSize, cellSize);
+                }
+            }
+            
+            // Desenhar maçã
+            ctx.fillStyle = '#e74c3c';
+            ctx.fillRect(
+                gameState.apple.x * cellSize + 1,
+                gameState.apple.y * cellSize + 1,
+                cellSize - 2,
+                cellSize - 2
+            );
+            
+            // Desenhar cobra
+            ctx.fillStyle = '#27ae60';
+            gameState.snake.forEach((segment, index) => {
+                // Cabeça da cobra com cor diferente
+                if (index === 0) {
+                    ctx.fillStyle = '#2ecc71';
+                } else {
+                    ctx.fillStyle = '#27ae60';
+                }
+                
+                ctx.fillRect(
+                    segment.x * cellSize + 1,
+                    segment.y * cellSize + 1,
+                    cellSize - 2,
+                    cellSize - 2
+                );
+            });
+        }
+        
+        // Controles do teclado
+        document.addEventListener('keydown', function(event) {
+            switch(event.key) {
+                case 'ArrowUp':
+                    event.preventDefault();
+                    sendMove('up');
+                    break;
+                case 'ArrowDown':
+                    event.preventDefault();
+                    sendMove('down');
+                    break;
+                case 'ArrowLeft':
+                    event.preventDefault();
+                    sendMove('left');
+                    break;
+                case 'ArrowRight':
+                    event.preventDefault();
+                    sendMove('right');
+                    break;
+                case 'r':
+                case 'R':
+                    event.preventDefault();
+                    resetGame();
+                    break;
+            }
+        });
+        
+        // Adicionar log simulado
+        function addLog(message) {
+            const logs = document.getElementById('agentLogs');
+            const div = document.createElement('div');
+            div.textContent = `${new Date().toLocaleTimeString()} - ${message}`;
+            logs.appendChild(div);
+            logs.scrollTop = logs.scrollHeight;
+            
+            // Limitar a 50 mensagens
+            while (logs.children.length > 50) {
+                logs.removeChild(logs.firstChild);
+            }
+        }
+        
+        // Simular eventos de score
+        let lastScore = 0;
+        setInterval(() => {
+            if (gameState && gameState.score > lastScore) {
+                addLog(`📊 ScoreAgent: Pontuação aumentou para ${gameState.score}`);
+                if (gameState.score % 5 === 0) {
+                    addLog(`📊 ScoreAgent: Marco alcançado! Score: ${gameState.score}`);
+                }
+                addLog(`🍎 AppleAgent: Maçã consumida!`);
+                lastScore = gameState.score;
+            }
+        }, 100);
+        
+        // Conectar ao inicializar
+        connectWebSocket();
+        
+        // Solicitar estado a cada 200ms
+        setInterval(requestGameState, 200);
+    </script>
+</body>
+</html>

@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jadex Snake - Home</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #2c3e50, #34495e);
+            color: white;
+            font-family: Arial, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .container {
+            text-align: center;
+            background: rgba(52, 73, 94, 0.8);
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 0 30px rgba(0,0,0,0.3);
+            backdrop-filter: blur(10px);
+            max-width: 600px;
+        }
+        
+        h1 {
+            font-size: 3em;
+            color: #e74c3c;
+            text-shadow: 3px 3px 6px rgba(0,0,0,0.5);
+            margin-bottom: 20px;
+        }
+        
+        .subtitle {
+            font-size: 1.2em;
+            color: #bdc3c7;
+            margin-bottom: 30px;
+        }
+        
+        .agents-info {
+            background: rgba(26, 37, 47, 0.7);
+            padding: 20px;
+            border-radius: 15px;
+            margin: 20px 0;
+            border-left: 5px solid #e74c3c;
+        }
+        
+        .agent {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin: 10px 0;
+            padding: 10px;
+            background: rgba(0,0,0,0.2);
+            border-radius: 8px;
+        }
+        
+        .agent-name {
+            font-weight: bold;
+        }
+        
+        .agent-desc {
+            color: #95a5a6;
+            font-size: 0.9em;
+        }
+        
+        .play-button {
+            background: linear-gradient(45deg, #e74c3c, #c0392b);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 50px;
+            font-size: 1.3em;
+            font-weight: bold;
+            cursor: pointer;
+            margin: 30px 0;
+            transition: all 0.3s;
+            box-shadow: 0 5px 15px rgba(231, 76, 60, 0.3);
+        }
+        
+        .play-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(231, 76, 60, 0.4);
+        }
+        
+        .tech-info {
+            background: rgba(0,0,0,0.2);
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 20px;
+            font-size: 0.9em;
+            color: #bdc3c7;
+        }
+        
+        .emoji {
+            font-size: 1.5em;
+            margin-right: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🐍 Jadex Snake</h1>
+        <div class="subtitle">Sistema Multi-Agente Inteligente</div>
+        
+        <div class="agents-info">
+            <h3 style="color: #f39c12; margin-top: 0;">Agentes do Sistema</h3>
+            
+            <div class="agent">
+                <div>
+                    <span class="emoji">🎮</span>
+                    <span class="agent-name">GameManagerAgent</span>
+                </div>
+                <div class="agent-desc">Gerencia estado central</div>
+            </div>
+            
+            <div class="agent">
+                <div>
+                    <span class="emoji">🐍</span>
+                    <span class="agent-name">SnakeAgent</span>
+                </div>
+                <div class="agent-desc">Controla movimento da cobra</div>
+            </div>
+            
+            <div class="agent">
+                <div>
+                    <span class="emoji">🍎</span>
+                    <span class="agent-name">AppleAgent</span>
+                </div>
+                <div class="agent-desc">Monitora eventos de maçã</div>
+            </div>
+            
+            <div class="agent">
+                <div>
+                    <span class="emoji">📊</span>
+                    <span class="agent-name">ScoreAgent</span>
+                </div>
+                <div class="agent-desc">Gerencia pontuação e achievements</div>
+            </div>
+        </div>
+        
+        <button class="play-button" onclick="window.location.href='/game'">
+            🎮 Jogar Agora
+        </button>
+        
+        <div class="tech-info">
+            <strong>Tecnologias:</strong> Jadex Multi-Agent System | Spring Boot | WebSockets | HTML5 Canvas
+            <br>
+            <strong>Comunicação:</strong> Serviços Jadex + Event Listeners + WebSocket Real-time
+        </div>
+    </div>
+</body>
+</html>
