@@ -1,4 +1,4 @@
-# 🐍 Jogo da Cobrinha com Jadex Multi-Agentes
+[IA (2).pdf](https://github.com/user-attachments/files/23235118/IA.2.pdf)# 🐍 Jogo da Cobrinha com Jadex Multi-Agentes
 
 Este projeto implementa o clássico jogo da cobrinha usando o framework de agentes **Jadex 4.0** integrado com **Spring Boot** e interface web moderna. O sistema utiliza uma arquitetura multi-agente robusta com comunicação híbrida entre agentes e interface web via WebSockets.
 
@@ -17,11 +17,13 @@ Este projeto implementa o clássico jogo da cobrinha usando o framework de agent
 
 ### Funcionalidades da Interface:
 - **Canvas HTML5** com renderização fluida 60fps
+
 - **WebSocket** para comunicação bidirecional em tempo real
 - **Controles touch** para dispositivos móveis
 - **Status dos agentes** visível na interface
 - **Logs em tempo real** dos eventos dos agentes
 - **Botão de reinicialização** instantânea
+[IA (3).pdf](https://github.com/user-attachments/files/23235122/IA.3.pdf)
 
 ## 🤖 Arquitetura Multi-Agente
 
@@ -360,3 +362,5 @@ Este projeto é distribuído sob a licença MIT. Veja `LICENSE` para mais inform
 - **Spring Boot** pela integração web robusta
 - **HTML5 Canvas** pela interface gráfica moderna
 - Comunidade **Java** pelas bibliotecas e ferramentas
+  
+[IA (3).pdf](https://github.com/user-attachments/files/23235135/IA.3.pdf)
