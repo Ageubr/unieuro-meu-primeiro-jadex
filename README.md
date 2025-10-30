@@ -362,5 +362,7 @@ Este projeto é distribuído sob a licença MIT. Veja `LICENSE` para mais inform
 - **Spring Boot** pela integração web robusta
 - **HTML5 Canvas** pela interface gráfica moderna
 - Comunidade **Java** pelas bibliotecas e ferramentas
-  
+
+SLIDE DE APRESENTAÇÃO: 
+
 [IA (3).pdf](https://github.com/user-attachments/files/23235135/IA.3.pdf)
